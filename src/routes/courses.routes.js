@@ -3,7 +3,7 @@ import Course from '../models/coursesSchema.js'
 
 const coursesRoutes = express.Router()
 
-coursesRoutes.get('/listOfCourses', async (req,res) => {
+coursesRoutes.get('/listofcourses', async (req,res) => {
     try{
         const listOfCourses = await Course.find()
         res.status(201).send(listOfCourses)
@@ -12,7 +12,7 @@ coursesRoutes.get('/listOfCourses', async (req,res) => {
     }
 })
 
-coursesRoutes.get('/listOfCourses/:id', async (req,res) => {
+coursesRoutes.get('/listofcourses/:id', async (req,res) => {
     try{
         const course = new Course({
             _id: req.params.id,

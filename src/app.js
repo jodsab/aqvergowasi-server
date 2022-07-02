@@ -1,5 +1,6 @@
 import express from 'express'
 import morgan from 'morgan';
+import cors from 'cors'
 //DB CONNECTED
 import mongoose from './database.js';
 //IMPORTING ROUTES
@@ -12,13 +13,14 @@ const app = express();
 const port = 4000;
 
 //MIDDLEWARES
+app.use(cors())
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 //ROUTES
-app.use("/users", usersRoutes);
-app.use("/courses", coursesRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/courses", coursesRoutes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
