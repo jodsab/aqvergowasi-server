@@ -1,41 +1,56 @@
-import express from 'express'
-import Course from '../models/coursesSchema.js'
+import express from "express";
+import Course from "../models/coursesSchema.js";
+import upload from "../helpers/storage.js";
 
-const coursesRoutes = express.Router()
+const coursesRoutes = express.Router();
 
-coursesRoutes.get('/listofcourses', async (req,res) => {
-    try{
-        const listOfCourses = await Course.find()
-        res.status(201).send(listOfCourses)
-    } catch(err) {
-        res.status(400).send(err)
+coursesRoutes.get("/listofcourses", async (req, res) => {
+  try {
+    const listOfCourses = await Course.find();
+    res.status(201).send(listOfCourses);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+coursesRoutes.get("/listofcourses/:id", async (req, res) => {
+  try {
+    const course = new Course({
+      _id: req.params.id,
+    });
+    const courseById = await Course.findById(course);
+    console.log(typeof courseById);
+    res.status(201).send(courseById);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+coursesRoutes.post("/addNewCourse", upload.single("filename"), async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    console.log('Entra a agergar curso')
+    console.log('name:', name)
+    console.log('description:', description)
+    if(!req.file){
+        console.log('NO EXISTE UN ARCHIVO QUE SE TRATA DE CARGAR')
     }
-})
+    const course = Course({
+      name,
+      description,
+    });
 
-coursesRoutes.get('/listofcourses/:id', async (req,res) => {
-    try{
-        const course = new Course({
-            _id: req.params.id,
-        })
-        const courseById = await Course.findById(course)
-        console.log(typeof courseById)
-        res.status(201).send(courseById)
-    } catch(err) {
-        res.status(400).send(err)
+    if (req.file) {
+      const { filename } = req.file;
+      course.setImage(filename);
     }
-})
 
-coursesRoutes.post('/addNewCourse', async (req,res) => {
-    try{
-        const course = new Course({
-            name: req.body.name,
-            description: req.body.description,
-        })
-        const newCourse = await course.save()
-        res.status(201).send(newCourse)
-    } catch(err) {
-        res.status(400).send(err)
-    }
-})
+    const courseStored = await course.save();
 
-export default coursesRoutes
+    res.status(201).send(courseStored);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+export default coursesRoutes;
