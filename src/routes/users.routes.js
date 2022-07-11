@@ -1,10 +1,11 @@
 import express from "express";
 import bcryptjs from "bcryptjs";
 import User from "../models/usersSchema.js";
+import upload from "../helpers/storage.js";
 
 const usersRoutes = express.Router();
 
-usersRoutes.post("/login", async (req, res) => {
+usersRoutes.post("/login", upload.none(), async (req, res) => {
   try {
     //Validar Schema con el body.
     const { error } = User.validate(req.body);
@@ -29,18 +30,40 @@ usersRoutes.post("/login", async (req, res) => {
   }
 });
 
-usersRoutes.post("/register", async (req, res) => {
-  console.log(req.body)
+usersRoutes.post("/register", upload.none(), async (req, res) => {
   try {
+    const { email, password, celNumber, ocupation, country } = req.body;
     const user = new User({
-      email: req.body.email,
-      password: req.body.password,
-      celNumber: req.body.celNumber,
-      ocupation: req.body.ocupation,
-      country: req.body.country,
+      email,
+      password,
+      celNumber,
+      ocupation,
+      country,
     });
-    const newUser = await user.save();
-    res.status(201).json(newUser);
+    const userRegister = await user.save();
+    res.status(201).json(userRegister);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+usersRoutes.get("/listofusers", upload.none(), async (req, res) => {
+  try {
+    const listOfUsers = await User.find(
+      {},
+      {
+        _id: 1,
+        name: 1,
+        rol: 1,
+        email: 1,
+        company: 1,
+        ocupation: 1,
+        country: 1,
+        createdAt: 1,
+        celNumber: 1
+      }
+    );
+    res.status(201).json(listOfUsers);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

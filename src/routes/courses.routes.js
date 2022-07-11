@@ -26,31 +26,54 @@ coursesRoutes.get("/listofcourses/:id", async (req, res) => {
   }
 });
 
-coursesRoutes.post("/addNewCourse", upload.single("filename"), async (req, res) => {
+coursesRoutes.post(
+  "/addnewcourse",
+  upload.fields([
+    { name: "image", maxCount: 2 },
+    { name: "pdf", maxCount: 2 },
+  ]),
+  async (req, res) => {
+    try {
+      const { name, description, youWillLearn } = req.body;
+      const course = Course({
+        name,
+        description,
+        youWillLearn,
+      });
+
+      if (req.files) {
+        req.files?.image && course.setImage(req.files.image[0]?.filename);
+        req.files?.pdf && course.setPdf(req.files.pdf[0]?.filename);
+      }
+
+      const courseStored = await course.save();
+
+      res.status(201).send(courseStored);
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  }
+);
+
+coursesRoutes.put("/listofcourses/:id/put", upload.none(), async (req, res) => {
   try {
-    const { name, description } = req.body;
-    console.log('Entra a agergar curso')
-    console.log('name:', name)
-    console.log('description:', description)
-    if(!req.file){
-        console.log('NO EXISTE UN ARCHIVO QUE SE TRATA DE CARGAR')
-    }
-    const course = Course({
-      name,
-      description,
-    });
-
-    if (req.file) {
-      const { filename } = req.file;
-      course.setImage(filename);
-    }
-
-    const courseStored = await course.save();
-
-    res.status(201).send(courseStored);
+    res.status(201);
   } catch (err) {
     res.status(400).send(err);
   }
 });
+
+coursesRoutes.delete(
+  "/listofcourses/:id/delete",
+  upload.none(),
+  async (req, res) => {
+    try {
+      const courseDeleted = await Course.deleteOne({ _id: req.params.id });
+      res.status(201).send(courseDeleted);
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  }
+);
 
 export default coursesRoutes;

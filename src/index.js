@@ -25,8 +25,6 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-console.log('PUERTO ES: ',process.env.APP_PORT)
-console.log(__dirname + "/uploads");
 app.use("/public", express.static(__dirname + "/uploads"));
 
 //ROUTES
